@@ -1,6 +1,6 @@
 <?php
 /**
- * Plugin Name: Kint Debugger
+ * Plugin Name: WordPress Kint Debugger
  * Plugin URI: https://github.com/jameelmoses/wordpress-kint-debugger
  * Description: Dump variables and traces in an organized and interactive display. Works with Debug Bar.
  * Version: 1.0.0
