@@ -13,21 +13,20 @@ Kint Debugger works well with the [Debug Bar](https://wordpress.org/plugins/debu
 ## Basic Usage
 
 ```php
-<?php d( $var ); ?>
+d( $var );
 ```
 
 ## Examples:
 
 ```php
-<?php global $post; d( $post ); ?>
+global $post;
+d( $post );
 ```
 
 ```php
-<?php
-    global $post;
-    $term_list = wp_get_post_terms( $post->ID, 'my_taxonomy', array( 'fields' => 'all' ) );
-    d( $term_list );
-?>
+global $post;
+$term_list = wp_get_post_terms( $post->ID, 'my_taxonomy', array( 'fields' => 'all' ) );
+d( $term_list );
 ```
 
 Kint Debugger also provides some helper functions for dumping variables that are frequently needed.
@@ -40,11 +39,11 @@ Kint Debugger also provides some helper functions for dumping variables that are
 Examples:
 
 ```php
-<?php dump_post(); ?>
+dump_post();
 ```
 
 ```php
-<?php add_action( 'wp_head', 'dump_post' ); ?>
+add_action( 'wp_head', 'dump_post' );
 ```
 
 Obviously, if this plugin is not active, calls to the helper functions will cause errors.
@@ -54,19 +53,17 @@ Obviously, if this plugin is not active, calls to the helper functions will caus
 If you are dumping the same information in different places, consider writing your own helper functions in your theme's functions file or an mu-plugin. For example:
 
 ```php
-<?php
 function my_dump_terms() {
-     global $post;
-     $term_list = wp_get_post_terms( $post->ID, 'my_taxonomy', array( 'fields' => 'all' ) );
-     d( $term_list  );
+  global $post;
+  $term_list = wp_get_post_terms( $post->ID, 'my_taxonomy', array( 'fields' => 'all' ) );
+  d( $term_list  );
 }
-?>
 ```
 
 Then at strategic points in your theme or plugin:
 
 ```php
-<?php my_dump_terms(); ?>
+my_dump_terms();
 ```
 
 ## With Debug Bar
@@ -84,15 +81,13 @@ Or to print a specific dump inline, use a helper function with the parameter `$i
 Examples:
 
 ```php
-<?php dump_post( true ); ?>
+dump_post( true );
 ```
 
 ```php
-<?php
-    global $post;
-    $term_list = wp_get_post_terms( $post->ID, 'my_taxonomy', array( 'fields' => 'all' ) );
-    dump_this( $term_list , true );
-?>
+global $post;
+$term_list = wp_get_post_terms( $post->ID, 'my_taxonomy', array( 'fields' => 'all' ) );
+dump_this( $term_list , true );
 ```
 
 Kint Debugger overrides Kint's d() function in order to buffer its output for Debug Bar. If you already have a modified d() function, you need to prevent the override in one of two ways.
