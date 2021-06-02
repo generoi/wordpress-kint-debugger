@@ -3,7 +3,7 @@
  * Plugin Name: WordPress Kint Debugger
  * Plugin URI: https://github.com/jameelmoses/wordpress-kint-debugger
  * Description: Dump variables and traces in an organized and interactive display. Works with Debug Bar.
- * Version: 1.0.0
+ * Version: 1.0.1
  * Author: Jameel Moses
  * Author URI: https://github.com/jameelmoses
  * Requires: 2.5 or higher

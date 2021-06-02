@@ -1,6 +1,6 @@
 {
   "name": "jameelmoses/wordpress-kint-debugger",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "WordPress Kint Debugger is a simple wrapper for Kint, a debugging tool to output information about variables and traces in a styled, collapsible format that makes understanding deep arrays and objects easier.",
   "keywords": [
     "WP",
