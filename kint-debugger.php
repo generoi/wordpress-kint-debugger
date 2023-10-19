@@ -3,10 +3,11 @@
  * Plugin Name: WordPress Kint Debugger
  * Plugin URI: https://github.com/jameelmoses/wordpress-kint-debugger
  * Description: Dump variables and traces in an organized and interactive display. Works with Debug Bar.
- * Version: 1.0.1
+ * Version: 2.0.0
  * Author: Jameel Moses
  * Author URI: https://github.com/jameelmoses
  * Requires: 2.5 or higher
+ * Requires PHP: 7.1
  * License: Dual license GPL-3.0 & MIT (Kint is licensed MIT)
  *
  * This program is free software; you can redistribute it and/or modify
@@ -24,107 +25,87 @@
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
  */
 
-/**
- * Load Kint after this plugin to ensure our modified d() function override.
- *
- * @since 1.0
- */
-function kint_debug_load_kint() {
-	require 'vendor/kint/Kint.class.php';
-}
-add_action( 'plugins_loaded', 'kint_debug_load_kint' );
+use Kint\Kint;
 
 /**
- * Generic data dump.
- *
- * @since 1.0
+ * Load Kint via plugin-specific autoloader, only if the class is not already present.
  */
-if ( ! function_exists( 'dump_this' ) ) {
-	function dump_this( $var, $inline = false ) {
-		/**
-		 * Some hooks send WP objects which then get passed as $inline
-		 * so check type too.
-		 */
-		if ( true === $inline ) {
-			$_ = array( $var );
-			echo call_user_func_array( array( 'Kint', 'dump' ), $_ );
-		}
-		else {
-			d( $var );
-		}
-	}
+if ( !class_exists( Kint::class ) ) {
+	require_once( __DIR__ . '/vendor/autoload.php' );
 }
 
 /**
  * Helper functions.
  */
 
+if ( ! function_exists( 'dump_this' ) ) {
+	/**
+	 * Generic data dump.
+	 *
+	 * @since 1.0
+	 */
+	function dump_this( $var, $inline = false ) {
+		/**
+		 * Some hooks send WP objects which then get passed as $inline
+		 * so check type too.
+		 */
+		if ( true === $inline ) {
+			Kint::dump( $var );
+		}
+		else {
+			ddb( $var );
+		}
+	}
+}
+Kint::$aliases[] = 'dump_this';
+
 if ( ! function_exists( 'dump_wp_query' ) ) {
-	function dump_wp_query( $inline = false ) {
+	function dump_wp_query( bool $inline = false ) {
 		global $wp_query;
 		dump_this( $wp_query, $inline );
 	}
 }
+Kint::$aliases[] = 'dump_wp_query';
 
 if ( ! function_exists( 'dump_wp' ) ) {
-	function dump_wp( $inline = false ) {
+	function dump_wp( bool $inline = false ) {
 		global $wp;
 		dump_this( $wp, $inline );
 	}
 }
+Kint::$aliases[] = 'dump_wp';
 
 if ( ! function_exists( 'dump_post' ) ) {
-	function dump_post( $inline = false ) {
+	function dump_post( bool $inline = false ) {
 		global $post;
 		dump_this( $post, $inline );
 	}
 }
+Kint::$aliases[] = 'dump_post';
 
 /**
- * Override can be prevented using config constant.
+ * Alias of Kint::dump() similar to d().
  *
- * @since 1.0
+ * Unlike d(), this sends Kint output to Debug Bar if active.
  */
-if ( ! defined( 'KINT_TO_DEBUG_BAR' ) || KINT_TO_DEBUG_BAR ) {
-	// An mu-plugin can still override the function.
-	if ( ! function_exists( 'd' ) ) {
-		/**
-		 * Alias of Kint::dump()
-		 *
-		 * This sends Kint output to Debug Bar if active.
-		 *
-		 * Can be prevented by declaring the function first in an mu-plugin
-		 *   (but not a theme due to WordPress load sequence).
-		 *
-		 * @return string
-		 */
-		function d() {
-			/** @noinspection PhpUndefinedClassInspection */
-			if ( ! Kint::enabled() ) {
-				return '';
-			}
-			$_ = func_get_args();
-			if ( class_exists( 'Debug_Bar' ) ) {
-				ob_start( 'kint_debug_ob' );
-				echo call_user_func_array( array( 'Kint', 'dump' ), $_ );
-				ob_end_flush();
-			} else {
-				return call_user_func_array( array( 'Kint', 'dump' ), $_ );
-			}
-
-			return '';
-		}
+function ddb( ...$args ): int|string {
+	if ( class_exists( 'Debug_Bar' ) ) {
+		ob_start( 'kint_debug_ob' );
+		Kint::dump( ...$args );
+		ob_end_flush();
+		return '';
 	}
+
+	return Kint::dump( ...$args );
 }
+Kint::$aliases[] = 'ddb';
 
 /**
  * Output buffer callback.
  *
  * @param $buffer
- *
- * @return string
  */
-function kint_debug_ob( $buffer ) {
+function kint_debug_ob( $buffer ): string {
 	global $kint_debug;
 	$kint_debug[] = $buffer;
 	if ( class_exists( 'Debug_Bar' ) ) {
