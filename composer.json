@@ -18,6 +18,10 @@
   "minimum-stability": "stable",
   "license": "GPL-3.0+",
   "require": {
-    "php": ">=5.6.0"
+    "php": ">=7.1",
+    "kint-php/kint": "^5"
+  },
+  "config": {
+    "optimize-autoloader": true
   }
 }
